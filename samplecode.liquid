@@ -1,0 +1,437 @@
+<style type="text/css">
+    .product-box {
+        display: inline-block;
+        text-align:left;
+    }
+    .product {
+        display: flex;
+        flex-direction: column;
+        border-radius: 4px;
+        /*box-shadow: 0 2px 2px 0 rgb(0 0 0 / 3%);*/
+        transition: .3s cubic-bezier(.32,.36,.4,1);
+        width: 30%;
+        margin-left: 1%;
+        display: inline-block;
+        padding: 1%;
+        margin-bottom: 30px;
+        text-align: center;
+        vertical-align: middle;
+      	flex-direction:column;
+        min-height:100px;
+}
+    }
+    .note-field--container {
+        display: flex;
+        flex-direction: column;
+    }
+    .bundleall {
+     
+      float:left;
+      width:60%;
+      margin-right:2%;
+      display:block;
+      
+    }
+    .bundle-content{
+      float: left;
+    width: 32%;
+    margin-top: 52px;
+    background: #fff;
+    box-shadow: 0 2px 2px 0 rgb(0 0 0 / 3%);
+    border-radius: 4px;
+  }
+  .bundleheader {
+    display: block;
+    padding: 10px 20px;
+    background: #91588f;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 15px;
+    border-radius: 4px 4px 0px 0px;
+  }
+  .more{
+        display: block;
+    text-align: center;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-top: 5px;
+    background: #eee;
+    color: #333;
+    padding: 15px;
+    border-radius: 4px;
+    width: 90%;
+    margin: 0% 0% 5% 5%;
+  }
+  .addbundle
+  {
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-top: 5px;
+    background: #91588f;
+    color: #fff;
+    padding: 15px;
+    border-radius: 4px;
+    width: 90%;
+    margin: 0% 0% 5% 5%;
+  }
+  .underprice
+  {
+    display:block;
+    text-align:center;
+    
+  }
+  .savings
+  {
+    
+    display: inline-block;
+    padding: 9px 0px;
+    color: #999;
+    width:50%;
+  }
+   .total
+  {
+    
+    display: inline-block;
+    color: #91588f;
+    font-weight: bold;
+    padding: 9px 0px;
+    width:50%;
+  }
+  .price-spacing
+  {
+    padding-right:10px;
+  }
+  .bundin
+  {
+    padding: 0 15px 20px 15px;
+    display:block;
+  }
+  .cartprod {
+    width: 31%;
+    margin-left: 1%;
+    display: inline-block;
+    border: 1px solid #E8E7E5;
+    border-radius: 3px;
+    position: relative;
+    margin-bottom: 10px;
+    text-align:center;
+  }
+  .remove {
+    position: absolute;
+    top: 0;
+    margin-left: -8px;
+    margin-top: -8px;
+    border-radius: 30px;
+    background: #91588f;
+    color: #fff;
+    border: 0px;
+    padding: 0 8px;
+    cursor:pointer;
+}
+  .btn
+  {
+    width:auto;
+  }
+  @media only screen and (max-width: 480px) /*Mobile Device */
+  {
+    .rte {display: flex; flex-flow: column-reverse;}
+    .bundleall{width:100%;display:inline-block;float:none;}
+    .bundle-content{width:100%;display:inline-block;float:none;}
+    .product {margin-bottom:0px;text-align:center;}
+    .section-header__title {margin-left:5px;margin-right:5px;}
+    .product{width:45%;}
+    .product_sub{margin-top:30px!important;text-align:center;}
+  }
+  .bundle_title
+  {
+    margin-top:10px;
+  }
+  
+  .product_sub
+  {
+    font-size:120%;
+    font-weight: bold;
+  }
+  .rte
+  {
+    margin: 0 5%;
+  }
+   
+</style>
+
+<script type="text/javascript">
+const selectedVariants = new Map();
+
+function setAddDisabled(form) {
+    const variantId = form.querySelector('[name="variant"]').value;
+    const sectionId = form.querySelector('[name="section"]').value;
+    const canAdd = window.BundleBuilder.canAddVariant(variantId, sectionId);
+    form.querySelector('[type="submit"]').disabled = !canAdd;
+}
+
+
+/* Change variant price after variant change */
+Array.prototype.forEach.call(
+    document.querySelectorAll('.bundle-builder--add-to-bundle-form select[name="variant"]'),
+    function (select) {
+        select.addEventListener('change', function (e) {
+            const variantId = e.target.value;
+            selectedVariants.set(e.target.id, variantId);
+            const price = e.target.querySelector('option[value="' + variantId + '"]').dataset.price;
+            e.target.parentNode.querySelector('.variant-price').textContent = price;
+
+           const form = e.target.parentElement;
+           setAddDisabled(form);
+        });
+    }
+);
+
+
+function render() {
+    selectedVariants.forEach(function (variantId, selectId) {
+        const select = document.getElementById(selectId);
+        if (select) {
+            select.value = variantId;
+        }
+    });
+    Array.prototype.forEach.call(
+        document.querySelectorAll('.bundle-builder--add-to-bundle-form'),
+        setAddDisabled,
+    );
+}
+/* Change variant to what was selected last */
+document.body.addEventListener('bundlebuilder:render', render);
+render()
+</script>
+{% if bundle.published %}
+<header class="section-header section-header--flush"><h1 class="section-header__title" style="padding-top:20px;">
+         {{bundle.title}}
+        </h1>
+      </header>
+<div class="rte">  {%comment%}Page Container {%endcomment%}
+  <div class="bundleall"> {%comment%}Shows Products Available for bundle {%endcomment%}
+        {%comment%} Section to display the products {%endcomment%}
+   
+          {%if bundle.current_section.products.size == 1 or bundle.current_section.products.size == 2 %} {%comment%} Check if bundle contains one product for bundle {%endcomment%}
+
+            <div class="product-box"> 
+             {% for product in bundle.current_section.products %}
+             
+              
+              {%comment%}You can set up if/else statements here if needed{%endcomment%}
+             	 
+                <div class="product">
+                 {% add_to_bundle_form bundle.current_section %} {%comment%} Notified the app of what variant gets added {%endcomment%}
+
+                    <select name="variant" id="select-{{ bundle.current_section.index }}-{{ product.id }}" style="display:none;" > 
+
+                                          <option value="{{ variant.id }}" data-price={{ variant.price | money }}>
+                                              {{ variant.title}}
+                                          </option>
+
+                     </select>
+                      
+                     {%comment%} Use if else statements to generate variant images {%endcomment%}
+                        
+               
+                  <p> {{ variant.title}}</p>
+                      <span class="variant-price price-spacing">{{ product.available_variants[0].price | money }}</span>
+                      <button type="submit" class="btn" >{%if variant.available %}Add{%else%}<span style="font-size:80%;">Sold Out</span>{%endif%}</button>
+
+                          {% end_add_to_bundle_form %}
+
+              </div>
+
+
+
+
+               {%endunless%}
+               {%endfor%}
+              
+           {%else%} {%comment%}Bundles with different products, not variants to assemble bundle{%endcomment%}
+              {% for product in bundle.current_section.products %}
+   
+                     <div class="product">
+                      <img src="{{ product.image.src }}" width="373px" height="auto" />
+                      {% add_to_bundle_form bundle.current_section %}
+                             <p style="text-align:center;">{{ product.title }}</p>
+                          {% if product.available_variants.size > 1 %}
+                              <select name="variant" id="select-{{ bundle.current_section.index }}-{{ product.id }}">
+                                  {% for variant in product.available_variants %}
+                                      <option value="{{ variant.id }}" data-price={{ variant.price | money }}>
+                                          {{ variant.title }}
+                                      </option>
+                                  {% endfor %}
+                              </select>
+                          {% else %}
+                              <input type="hidden" name="variant" value="{{ product.available_variants[0].id }}" />
+                              {{ product.available_variants[0].title }}
+                          {% endif %}
+                          <div style="margin-top:5px;">
+                          <br />
+                          <span class="variant-price price-spacing">{{ product.available_variants[0].price | money }}</span>
+                          <div style="text-align:center;"><button type="submit" class="btn">Add</button></div>
+                             </div>
+                      {% end_add_to_bundle_form %}
+
+                  </div>
+             {% endfor %}
+               
+       {%endif%}  
+                    </div> {%comment%}div for class "product box"{%endcomment%}
+ 
+
+                {%comment%}
+                           <div class="product">
+                      <h2>{{ product.title }}</h2>
+                      <img src="{{ product.image.src }}" />
+                          {% if product.available_variants.size > 1 %}
+                              <select name="variant" id="select-{{ bundle.current_section.index }}-{{ product.id }}">
+                                  {% for variant in product.available_variants %}
+                                      <option value="{{ variant.id }}" data-price={{ variant.price | money }}>
+                                          {{ variant.title }}{% if variant.available_count %} (available: {{ variant.available_count }}){% endif %}
+                                      </option>
+                                  {% endfor %}
+                              </select>
+
+
+                          {% else %}
+                              <input type="hidden" name="variant" value="{{ product.available_variants[0].id }}" />
+                              {{ product.available_variants[0].title }}{% if product.available_variants[0].available_count %} (available: {{ product.available_variants[0].available_count }}){% endif %}
+                          {% endif %}
+                          <span class="variant-price">{{ product.available_variants[0].price | money }}</span>
+                          <button type="submit">Add</button>
+                      {% for variant in product.variants_in_bundle %}
+                        {% change_quantity_form %}
+                            {{ variant.title }}
+                            <input type="hidden" name="variant" value="{{ variant.id }}" />
+                            <input type="hidden" name="section" value="{{ bundle.current_section.index }}" />
+                            <button type="submit" name="remove">-</button>
+                                {{ variant.count }}
+                            <button type="submit" name="add">+</button>
+                        {% end_change_quantity_form %}
+                     {% endfor %}
+                  </div>
+              {%endcomment%}
+    {% if bundle.has_next_section %}
+        {% section_switch_form %}
+            <input type="hidden" name="section" value="{{ bundle.current_section.index | plus: 1 }}" />
+            <button type="submit">Next</button>
+        {% end_section_switch_form %}
+    {% endif %}
+
+    {% if bundle.has_prev_section %}
+        {% section_switch_form %}
+            <input type="hidden" name="section" value="{{ bundle.current_section.index | plus: -1 }}" />
+            <button type="submit">Previous</button>
+        {% end_section_switch_form %}
+    {% endif %}
+               
+			 {%comment%}Bundle Display for single products{%endcomment%}
+    <div class="bundle-content"> 
+        <div class="bundleheader">
+          <h2>Build Your Bundle</h2>
+          <p>{{bundle.description}}</p>
+           {% if bundle.errors.size > 0 %}
+            {% for error in bundle.errors %}
+              <p>{{ error }}</p>
+              {% endfor %}
+           {% endif %}
+        </div>
+        <div class="bundin">
+          {% if bundle.content.items.size == 0 %}
+              <span>Your bundle is empty</span>
+          {% else %}
+
+                   {% for item in bundle.content.items %} {%comment%} Show products that was added to the bundle {%endcomment%}
+                     <div class="cartprod"> {%comment%}Creates product cards to show itmes in the bundle {%endcomment%}
+                       {%comment%} Use if else statements to generate variant images {%endcomment%}
+                        
+                      
+                       <p style="text-align:center;margin-bottom:0px;">{{ item.variant.title }}</p>
+                           <table style="border-collapse:collapse;">
+                             <tr>
+
+                          <td style="text-align:center;">
+                              {% unless item.is_required %}
+                                  {% remove_from_bundle_form item %}
+                                      <button type="submit" class="btn">Remove</button>
+                                  {% end_remove_from_bundle_form %}
+                              {% endunless %}
+                          </td>
+                      </tr>
+                          </table>
+
+                     </div>
+
+                  {% endfor %}
+
+
+        </div>
+             <div class="underprice">
+                {% if bundle.content.price < bundle.content.compare_at_price %}
+                    
+                   <div class="savings">
+                     <span>Discount: {{ bundle.content.price | minus: bundle.content.compare_at_price | money }}</span
+                    </div>
+                {% endif %}
+				   <div class="total">
+                      <span>Total: {{ bundle.content.price | money }}</span>
+                    </div>
+              </div>
+         {%endif%}
+         {%comment%}Add to cart/additional settings{%endcomment%}
+         {% if settings.note_enabled %}
+                <div class="note-field--container">
+                    <label>{{ settings.note_label }}{% if settings.note_required %} (required){% endif %}</label>
+                    {% note_field %}{{ settings.note_text }}{% end_note_field %}
+                </div>
+                {% if settings.note_prompt_visible %}
+                    <div class="note-field--error-message">
+                        <p>Note required before adding to cart.</p>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            {% add_to_cart_form %}
+                {% if bundle.subscription_type == 'optional' and bundle.subscription_frequencies.size > 0 %}
+                    <label>
+                        <input type="radio" name="subscription-enabled" value="0" />
+                        One-time purchase
+                    </label>
+                    <label>
+                        <input type="radio" name="subscription-enabled" value="1" />
+                        Subscribe
+                    </label>
+                {% endif %}
+                {% if bundle.subscription_type == 'required' or bundle.subscription_enabled %}
+                    {% for frequency in bundle.subscription_frequencies %}
+                        <ul>
+                            <li>
+                                <label>
+                                    <input type="radio" name="subscription-frequency" value="{{ frequency.id }}" />
+                                    {{ frequency.frequency }} {{ frequency.unit }}
+                                </label>
+                            </li>
+                        </ul>
+                    {% endfor %}
+                    Email: <input type="email" required name="subscription-email" value="{{ settings.subscription_email }}" />
+                {% endif %}
+                <button type="submit" {% unless bundle.can_add_to_cart %} class= "more" disabled="disabled"{% endunless %} {%if bundle.can_add_to_cart %}class="addbundle" {%endif%}>
+                    {% if bundle.can_add_to_cart %}
+                  <span style="text-transform:uppercase;"><strong>Bundle completed! Add bundle to cart</strong></span>
+                       
+                    {% else %}
+                        Add more to your bundle
+                    {% endif %}
+                </button>
+            {% end_add_to_cart_form %}
+   
+       </div>
+</div>
+
+{% else %}
+    <p>Sorry, this bundle is currently unavailable.</p>
+{% endif %}
